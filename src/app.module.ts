@@ -7,6 +7,7 @@ import { GenreModule } from './genre/genre.module';
 import { AuthorModule } from './author/author.module';
 import { OrderModule } from './order/order.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { PrismaModule } from './prisma/prisma.module';
     AuthorModule,
     OrderModule,
     PrismaModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],
