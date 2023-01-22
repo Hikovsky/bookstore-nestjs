@@ -3,15 +3,17 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AuthLoginDto, AuthRegisterDto } from './dto';
 import * as argon from 'argon2';
 import { User } from '@prisma/client';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
-  getUserByEmail(email: string) {
-    return this.prisma.user.findUnique({
-      where: { email: email },
-    });
-  }
+  constructor(
+    private prisma: PrismaService,
+    private jwt: JwtService,
+    private config: ConfigService,
+  ) {}
+
   async signup(dto: AuthRegisterDto) {
     const userExist: User = await this.getUserByEmail(dto.email);
 
@@ -45,8 +47,28 @@ export class AuthService {
       throw new HttpException('Wrong credentials', HttpStatus.BAD_REQUEST);
     }
 
-    delete user.password;
+    return this.signToken(user.id, user.email);
+  }
 
-    return user;
+  getUserByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: { email: email },
+    });
+  }
+
+  async signToken(
+    userId: number,
+    email: string,
+  ): Promise<{ access_token: string }> {
+    const payload = {
+      sub: userId,
+      email,
+    };
+    const options = {
+      expiresIn: '15m',
+      secret: this.config.get('JWT_SECRET'),
+    };
+    const token = await this.jwt.signAsync(payload, options);
+    return { access_token: token };
   }
 }
