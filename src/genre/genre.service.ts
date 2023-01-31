@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { GenreCreateDTO, GenreDeleteDto, GenreUpdateDto } from './dto';
+import { GenreCreateDTO, GenreUpdateDto } from './dto';
 import { Genre } from '@prisma/client';
 
 @Injectable()
@@ -25,9 +25,9 @@ export class GenreService {
     return { genre };
   }
 
-  async update(dto: GenreUpdateDto) {
+  async update(dto: GenreUpdateDto, id) {
     const genreExist: Genre = await this.prisma.genre.findUnique({
-      where: { id: dto.id },
+      where: { id: id },
     });
 
     if (!genreExist) {
@@ -35,16 +35,16 @@ export class GenreService {
     }
 
     const genre: Genre = await this.prisma.genre.update({
-      where: { id: dto.id },
+      where: { id: id },
       data: { name: dto.name },
     });
 
     return { genre };
   }
 
-  async delete(dto: GenreDeleteDto) {
+  async delete(id) {
     const genreExist: Genre = await this.prisma.genre.findUnique({
-      where: { id: dto.id },
+      where: { id: id },
     });
 
     if (!genreExist) {
@@ -52,14 +52,14 @@ export class GenreService {
     }
 
     const genre: Genre = await this.prisma.genre.delete({
-      where: { id: dto.id },
+      where: { id: id },
     });
 
     return { genre };
   }
 
   async getAll() {
-    const genres = await this.prisma.genre.findMany({});
+    const genres: Genre[] = await this.prisma.genre.findMany({});
     return { genres };
   }
 }
